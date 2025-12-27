@@ -29,10 +29,14 @@ public class LibraryService {
     if (!memberRepository.existsById(memberId)) {
       return Result.failure("MEMBER_NOT_FOUND");
     }
+    Book entity = book.get();
+    if (entity.getLoanedTo() != null) {
+      return Result.failure("BOOK_LOANED"); }
+
     if (!canMemberBorrow(memberId)) {
       return Result.failure("BORROW_LIMIT");
     }
-    Book entity = book.get();
+
     entity.setLoanedTo(memberId);
     entity.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
     bookRepository.save(entity);
