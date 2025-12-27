@@ -37,6 +37,12 @@ public class LibraryService {
       return Result.failure("BORROW_LIMIT");
     }
 
+    if (!entity.getReservationQueue().isEmpty()) {
+      if (!entity.getReservationQueue().get(0).equals(memberId)) {
+        return Result.failure("BOOK_RESERVED"); }
+      entity.getReservationQueue().remove(0);
+    }
+
     entity.setLoanedTo(memberId);
     entity.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
     bookRepository.save(entity);
