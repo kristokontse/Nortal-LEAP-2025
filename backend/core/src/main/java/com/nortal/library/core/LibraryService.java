@@ -271,6 +271,19 @@ public class LibraryService {
     if (existing.isEmpty()) {
       return Result.failure("MEMBER_NOT_FOUND");
     }
+
+    // If member is deleted, all the loans and reservations for him are deleted
+    List<Book> books = bookRepository.findAll();
+    // Release all books loaned to this member
+    for (Book book : books) {
+      if (id.equals(book.getLoanedTo())) {
+        book.setLoanedTo(null);
+        book.setDueDate(null);
+      }
+      book.getReservationQueue().remove(id);
+      bookRepository.save(book);
+    }
+
     memberRepository.delete(existing.get());
     return Result.success();
   }
