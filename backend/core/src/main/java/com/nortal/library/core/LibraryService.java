@@ -33,14 +33,17 @@ public class LibraryService {
     if (entity.getLoanedTo() != null) {
       return Result.failure("BOOK_LOANED"); }
 
-    if (!canMemberBorrow(memberId)) {
-      return Result.failure("BORROW_LIMIT");
-    }
 
     if (!entity.getReservationQueue().isEmpty()) {
       if (!entity.getReservationQueue().get(0).equals(memberId)) {
-        return Result.failure("BOOK_RESERVED"); }
-      entity.getReservationQueue().remove(0);
+        return Result.failure("BOOK_RESERVED");
+      } else {
+        entity.getReservationQueue().remove(0);
+      }
+    }
+
+    if (!canMemberBorrow(memberId)) {
+      return Result.failure("BORROW_LIMIT");
     }
 
     entity.setLoanedTo(memberId);
@@ -56,6 +59,9 @@ public class LibraryService {
     }
 
     Book entity = book.get();
+    if (entity.getLoanedTo() == null || !entity.getLoanedTo().equals(memberId)) {
+      return ResultWithNext.failure();
+    }
     entity.setLoanedTo(null);
     entity.setDueDate(null);
     String nextMember =
