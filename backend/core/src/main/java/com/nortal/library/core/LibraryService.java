@@ -69,9 +69,10 @@ public class LibraryService {
 
         String nextMember = null;
         List<String> queue = book.get().getReservationQueue();
-        while (!queue.isEmpty()){
+
+        while (!queue.isEmpty()) {
             String memberChoice = queue.get(0);
-            if (memberRepository.existsById(memberChoice) && canMemberBorrow(memberChoice)){
+            if (memberRepository.existsById(memberChoice) && canMemberBorrow(memberChoice)) {
                 nextMember = memberChoice;
                 entity.setLoanedTo(memberChoice);
                 entity.setDueDate(LocalDate.now().plusDays(DEFAULT_LOAN_DAYS));
@@ -133,12 +134,10 @@ public class LibraryService {
         if (!memberRepository.existsById(memberId)) {
             return false;
         }
-        int active = 0;
-        for (Book book : bookRepository.findAll()) {
-            if (memberId.equals(book.getLoanedTo())) {
-                active++;
-            }
-        }
+        long active = bookRepository.findAll().stream()
+                .filter(book -> memberId.equals(book.getLoanedTo()))
+                .limit(MAX_LOANS)
+                .count();
         return active < MAX_LOANS;
     }
 
